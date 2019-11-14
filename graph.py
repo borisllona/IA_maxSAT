@@ -93,8 +93,13 @@ class Graph(object):
         # Visualize
         dot.render(name, view=True, cleanup=True)
 
-    def fillGraph(self,n):
-        
+    def fillGraph(self,nodes):
+        graph = []
+        for a in nodes:
+            for b in nodes[a:]:
+                if((a,b)not in self.edges and (b,a)not in self.edges):
+                    graph.append((a,b))
+        print(graph)
 
     def min_vertex_cover(self, solver):
         """Computes the minimum vertex cover of the graph.
@@ -138,14 +143,14 @@ class Graph(object):
             formula.add_clause([n],weight=1)
         #Create hard clauses
         completeGraph = self.fillGraph(nodes)
-        for n1, n2 in completeGraph: #list with tuples, we extract the tuple in two values
-            if (n1,n2) not in self.edges:
+        for n1, n2 in completeGraph: 
+            if (n1,n2) not in self.edges: #Checks the edges that miss on the graph to make it complete.
                 v1, v2 = nodes[n1-1],nodes[n2-1]
                 formula.add_clause([-v1,-v2],weight=wcnf.TOP_WEIGHT)
 
         #formula.write_dimacs()
         opt, model = solver.solve(formula)
-        #print("OPT:",opt)
+        print("OPT:",opt)
         #print("MODEL:",model)
 
         return[n for n in model if n>0] #Mirar que la respuesta sea esta

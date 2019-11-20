@@ -25,6 +25,7 @@ class WCNFFormula(object):
         self.soft = []  # Item format: (weight, [literals])
         self._sum_soft_weights = 0
         self.header = []
+        self.num_var = 0
 
     @property
     def num_clauses(self):
@@ -35,6 +36,9 @@ class WCNFFormula(object):
     def top_weight(self):
         """Formula top weight."""
         return self._sum_soft_weights + 1
+
+    def variables(self,n):
+        self.num_var = n
 
     def clean(self):
         self.__init__()
@@ -49,7 +53,6 @@ class WCNFFormula(object):
         """
         for clause in clauses:
             self.add_clause(clause, weight)
-        print(self.soft)    
 
     def add_clause(self, literals, weight):
         """Adds the given literals as a new clause with the specified weight.
@@ -88,8 +91,25 @@ class WCNFFormula(object):
     def to_13wpm(self):
         """Generates a new formula that is the 1,3-WPM equivalent
         of this one."""
+        lastReification = self.num_var #bi será el numero siguiente al numero de variables actuales
+        totalHard = len(self.hard)
+        totalSoft = len(self.soft)
         formula13 = WCNFFormula()
-        #for self
+        
+        for _ in range(0,totalSoft):
+            weight, literal = self.soft.pop(0)
+            lastReification+=1
+            self.soft.append((weight,[-lastReification]))
+            self.hard.append(literal + [lastReification])
+        #Quede tractar que les hard siguin de long 3(repasar)
+        for i in range(0,len(self.hard)):
+            while(len(self.hard[i])>3):
+                pass
+            if len(self.hard[i]) < 3:
+                left = 3-len(self.hard[i])
+                val = self.hard[i].pop()
+                for _ in range(0,left+1):
+                    self.hard[i].append(val)
 
         return formula13
 
@@ -110,7 +130,6 @@ class WCNFFormula(object):
         print("c ===== Hard Clauses =====", file=stream)
         for clause in self.hard:
             print(top, " ".join(str(l) for l in clause), "0", file=stream)
-
         print("c ===== Soft Clauses (Sum weights: {0}) ====="
               .format(self._sum_soft_weights), file=stream)
         for weight, clause in self.soft:
@@ -167,19 +186,21 @@ def load_from_stream(stream, strict=False):
 
     for l, l_no in reader:
         v = l.split()
-        if v[0] == 'p' and f_type is None: #Analitzem primera linea que ens diu el nombre de variables, clausules i valor d'infinit
+        if v[0] == 'p' and f_type is None:
             if 4 <= len(v) <= 5:
                 f_type = v[1]
                 if v[1] == 'cnf':
                     n_vars, n_clauses = int(v[2]), int(v[3])
+                    formula.variables(n_vars)
                 elif v[1] == 'wcnf':
                     n_vars, n_clauses, top = int(v[2]), int(v[3]), int(v[4])
+                    formula.variables(n_vars)
                 else:
                     raise WCNFException("Invalid formula type: " + v[1])
             else:
                 raise WCNFException("Invalid number of elements at line {0}"
                                     .format(l_no))
-        elif f_type is not None: #Mentre hi hagi valors...
+        elif f_type is not None:
             values = [int(e) for e in v]
             raw_clauses = [list(g) for k, g in
                            itertools.groupby(values, lambda x: x == 0)

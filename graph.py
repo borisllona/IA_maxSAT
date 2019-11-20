@@ -99,7 +99,7 @@ class Graph(object):
             for b in nodes[a:]:
                 if((a,b)not in self.edges and (b,a)not in self.edges):
                     graph.append((a,b))
-        print(graph)
+        return graph
 
     def min_vertex_cover(self, solver):
         """Computes the minimum vertex cover of the graph.
@@ -122,8 +122,8 @@ class Graph(object):
         #formula.write_dimacs()
 
         opt, model = solver.solve(formula)
-        #print("OPT:",opt)
-        #print("MODEL:",model)
+        print("OPT:",opt)
+        print("MODEL:",model)
 
         return[n for n in model if n>0]
 
@@ -151,7 +151,7 @@ class Graph(object):
         #formula.write_dimacs()
         opt, model = solver.solve(formula)
         print("OPT:",opt)
-        #print("MODEL:",model)
+        print("MODEL:",model)
 
         return[n for n in model if n>0] #Mirar que la respuesta sea esta
 
@@ -161,7 +161,24 @@ class Graph(object):
         :param solver: An instance of MaxSATRunner.
         :return: A solution (list of nodes).
         """
-        raise NotImplementedError("Your Code Here")
+        #Initialize formula
+        formula = wcnf.WCNFFormula()
+        #Create variables
+        nodes = [formula.new_var() for _ in range(self.n_nodes)] #Add new variable to the list in the range of the nodes we have.
+        #Create soft clausules  
+        for a in nodes:
+            for b in nodes[a:]:
+                if (a,b) in self.edges or (b,a) in self.edges:
+                    formula.add_clause([a,b],weight=1)
+                    formula.add_clause([-a,-b],weight=1)
+
+        opt, model = solver.solve(formula)
+        #formula.write_dimacs()
+        #print("OPT:",opt)
+        #print("MODEL:",model)
+
+        return[n for n in model if n>0]            
+                
 
 ###############################################################################
 
@@ -177,13 +194,12 @@ def main(argv=None):
 
     min_vertex_cover = graph.min_vertex_cover(solver)
     print("MVC", " ".join(map(str, min_vertex_cover)))
-    '''
+    
     max_clique = graph.max_clique(solver)
     print("MCLIQUE", " ".join(map(str, max_clique)))
     '''
     max_cut = graph.max_cut(solver)
     print("MCUT", " ".join(map(str, max_cut)))
-    '''
 
 
 # Utilities

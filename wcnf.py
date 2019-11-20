@@ -49,6 +49,7 @@ class WCNFFormula(object):
         """
         for clause in clauses:
             self.add_clause(clause, weight)
+        print(self.soft)    
 
     def add_clause(self, literals, weight):
         """Adds the given literals as a new clause with the specified weight.
@@ -88,7 +89,8 @@ class WCNFFormula(object):
         """Generates a new formula that is the 1,3-WPM equivalent
         of this one."""
         formula13 = WCNFFormula()
-        raise NotImplementedError("Your code here")
+        #for self
+
         return formula13
 
     def sum_soft_weights(self):
@@ -165,7 +167,7 @@ def load_from_stream(stream, strict=False):
 
     for l, l_no in reader:
         v = l.split()
-        if v[0] == 'p' and f_type is None:
+        if v[0] == 'p' and f_type is None: #Analitzem primera linea que ens diu el nombre de variables, clausules i valor d'infinit
             if 4 <= len(v) <= 5:
                 f_type = v[1]
                 if v[1] == 'cnf':
@@ -177,7 +179,7 @@ def load_from_stream(stream, strict=False):
             else:
                 raise WCNFException("Invalid number of elements at line {0}"
                                     .format(l_no))
-        elif f_type is not None:
+        elif f_type is not None: #Mentre hi hagi valors...
             values = [int(e) for e in v]
             raw_clauses = [list(g) for k, g in
                            itertools.groupby(values, lambda x: x == 0)
@@ -215,7 +217,8 @@ if __name__ == "__main__":
         # Check formula
         print("Is formula in 1-3 WPMS:", formula_1_3.is_13wpm(strict=True))
         # Store new formula
-        formula_1_3.write_dimacs_file(sys.argv[2])
+        #formula_1_3.write_dimacs_file(sys.argv[2])
+        formula.write_dimacs_file(sys.argv[2])
         print("- New 1-3 WPMS formula written to", sys.argv[2])
     else:
         # Wrong number of arguments

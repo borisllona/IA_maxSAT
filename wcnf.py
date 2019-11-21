@@ -98,15 +98,16 @@ class WCNFFormula(object):
         totalSoft = len(self.soft)
         formula13 = WCNFFormula()
 
+        #Convert soft clauses to (1,3)
         for _ in range(0,totalSoft):
             weight, literal = self.soft.pop(0)
             lastReification+=1
             self.soft.append((weight,[-lastReification]))
             self.hard.append(literal + [lastReification])
 
-        #for i in range(0,len(self.hard)):
+        #Convert hard clauses to (1,3) 
         while i<len(self.hard):
-            if len(self.hard[i])>3:
+            while len(self.hard[i])>3:
                 lastReification+=1
                 self.hard.extend([[self.hard[i][0],self.hard[i][1],lastReification]])
                 l = [self.hard[i][j] for j in range(2,len(self.hard[i]))]
@@ -120,8 +121,8 @@ class WCNFFormula(object):
                 for _ in range(0,left+1):
                     self.hard[i].append(val)
             i+=1
-        #cal mirar els que hem afegit de nou
 
+        formula13 = self
         return formula13
 
     def sum_soft_weights(self):
@@ -250,7 +251,6 @@ if __name__ == "__main__":
         print("Is formula in 1-3 WPMS:", formula_1_3.is_13wpm(strict=True))
         # Store new formula
         formula_1_3.write_dimacs_file(sys.argv[2])
-        #formula.write_dimacs_file(sys.argv[2])
         print("- New 1-3 WPMS formula written to", sys.argv[2])
     else:
         # Wrong number of arguments

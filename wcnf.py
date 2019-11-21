@@ -91,25 +91,36 @@ class WCNFFormula(object):
     def to_13wpm(self):
         """Generates a new formula that is the 1,3-WPM equivalent
         of this one."""
+        added,i = 0,0
+        l = []
         lastReification = self.num_var #bi será el numero siguiente al numero de variables actuales
         totalHard = len(self.hard)
         totalSoft = len(self.soft)
         formula13 = WCNFFormula()
-        
+
         for _ in range(0,totalSoft):
             weight, literal = self.soft.pop(0)
             lastReification+=1
             self.soft.append((weight,[-lastReification]))
             self.hard.append(literal + [lastReification])
-        #Quede tractar que les hard siguin de long 3(repasar)
-        for i in range(0,len(self.hard)):
-            while(len(self.hard[i])>3):
-                pass
+
+        #for i in range(0,len(self.hard)):
+        while i<len(self.hard):
+            if len(self.hard[i])>3:
+                lastReification+=1
+                self.hard.extend([[self.hard[i][0],self.hard[i][1],lastReification]])
+                l = [self.hard[i][j] for j in range(2,len(self.hard[i]))]
+                l.insert(0,-lastReification)
+                self.hard.extend([l])
+                del self.hard[i]
+
             if len(self.hard[i]) < 3:
                 left = 3-len(self.hard[i])
                 val = self.hard[i].pop()
                 for _ in range(0,left+1):
                     self.hard[i].append(val)
+            i+=1
+        #cal mirar els que hem afegit de nou
 
         return formula13
 
@@ -238,8 +249,8 @@ if __name__ == "__main__":
         # Check formula
         print("Is formula in 1-3 WPMS:", formula_1_3.is_13wpm(strict=True))
         # Store new formula
-        #formula_1_3.write_dimacs_file(sys.argv[2])
-        formula.write_dimacs_file(sys.argv[2])
+        formula_1_3.write_dimacs_file(sys.argv[2])
+        #formula.write_dimacs_file(sys.argv[2])
         print("- New 1-3 WPMS formula written to", sys.argv[2])
     else:
         # Wrong number of arguments

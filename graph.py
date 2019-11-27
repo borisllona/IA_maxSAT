@@ -165,7 +165,7 @@ class Graph(object):
         formula = wcnf.WCNFFormula()
         #Create variables
         nodes = [formula.new_var() for _ in range(self.n_nodes)] #Add new variable to the list in the range of the nodes we have.
-        #Create soft clausules  
+        #Create clausules  
         for a in nodes:
             for b in nodes[a:]:
                 if (a,b) in self.edges or (b,a) in self.edges:

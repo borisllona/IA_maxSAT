@@ -122,8 +122,8 @@ class Graph(object):
         #formula.write_dimacs()
 
         opt, model = solver.solve(formula)
-        print("OPT:",opt)
-        print("MODEL:",model)
+        #print("OPT:",opt)
+        #print("MODEL:",model)
 
         return[n for n in model if n>0]
 
@@ -150,8 +150,8 @@ class Graph(object):
 
         #formula.write_dimacs()
         opt, model = solver.solve(formula)
-        print("OPT:",opt)
-        print("MODEL:",model)
+        #print("OPT:",opt)
+        #print("MODEL:",model)
 
         return[n for n in model if n>0] #Mirar que la respuesta sea esta
 
@@ -187,17 +187,18 @@ def main(argv=None):
     args = parse_command_line_arguments(argv)
 
     solver = msat_runner.MaxSATRunner(args.solver)
+
     graph = Graph(args.graph)
-    '''
+    
     if args.visualize:
         graph.visualize(os.path.basename(args.graph))
-
+    
     min_vertex_cover = graph.min_vertex_cover(solver)
     print("MVC", " ".join(map(str, min_vertex_cover)))
     
     max_clique = graph.max_clique(solver)
     print("MCLIQUE", " ".join(map(str, max_clique)))
-    '''
+    
     max_cut = graph.max_cut(solver)
     print("MCUT", " ".join(map(str, max_cut)))
 
